@@ -78,7 +78,7 @@ def guessOS(dList,dDict,dFinal,dNotReachable):
 # Meaning 20 threads with each a list of devices.
 
 devList = list(devices.keys())
-for array in np.array_split(devList,10):
+for array in np.array_split(devList,20):
     t= threading.Thread(target = guessOS, args=(array,devices,finalDevices,notReachable,))
     t.start()
     threads.append(t)
