@@ -9,14 +9,9 @@ import getpass
 import json
 from netmiko import ConnectHandler
 from jumpssh import SSHSession
-import numpy as np
 import threading
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.ssh_dispatcher import ConnectHandler
-import threading
-import numpy as np
-from concurrent.futures import ProcessPoolExecutor, as_completed
-
 
 devicesRaw = []
 devices = {}
