@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+
+import warnings
+from cryptography.utils import CryptographyDeprecationWarning
+with warnings.catch_warnings():
+    warnings.filterwarnings('ignore', category=CryptographyDeprecationWarning)
+    import paramiko
+import getpass
+import json
+from netmiko import ConnectHandler
+from jumpssh import SSHSession
+import numpy as np
+import threading
+from netmiko.ssh_autodetect import SSHDetect
+from netmiko.ssh_dispatcher import ConnectHandler
+import threading
+import numpy as np
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+
+devicesRaw = []
+devices = {}
+finalDevices = {}
+notReachable  = []
+devList = []
+
+with open('devices.list') as f:
+    devicesRaw = f.readlines()
+
+
+for entry in devicesRaw:
+    entry = entry.strip()
+    devList.append(entry)
+
+bastionServer = 'IP_BASTION'
+user = input("Enter your username: ")
+print("Enter your password")
+passWord = getpass.getpass()
+
+bastionConnect=paramiko.SSHClient()
+bastionConnect.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+bastionConnect.connect(bastionServer, username=user, password=passWord, port=22,timeout=10)
+bastionTransport = bastionConnect.get_transport()
+target=paramiko.SSHClient()
+target.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+srcIP = (bastionServer, 22)
+
+
+def sendCommand(dHost,dDict):
+    try:
+        destIP = (dHost, 22)
+        bastionChannel = bastionTransport.open_channel("direct-tcpip", destIP, srcIP,timeout=5)
+        dDict[dHost] = {
+        "device_type": "autodetect",
+        "host": dHost,
+        "username": user,
+        "password": passWord,
+        "sock":bastionChannel,
+        "conn_timeout": 10,
+        }
+        with ConnectHandler(**dDict[dHost]) as net_connect:
+            print (net_connect.send_command("show version"))
+            net_connect.disconnect()
+    except Exception as err:
+        paramiko.util.log_to_file('/dev/null')
+        exception_type = type(err).__name__
+        print(exception_type)
+    except OSError as error :
+        print(error)
+target.close()
+
+threads = []
+
+#sendCommand(devList,devices)
+for host in devList:
+    t= threading.Thread(target = sendCommand, args=(host,devices,))
+    t.start()
+    threads.append(t)
+
+for t in threads:
+    t.join()
+
+bastionConnect.close()
+
