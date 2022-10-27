@@ -90,9 +90,10 @@ for t in threads:
 with open(baseDir + r'unreachableALL.list', 'w') as fp:
     for item in notReachable:
         fp.write("%s\n" % item)
-    print('Done')
 
 with open(baseDir + "NetmikoDevices" +'.json', 'w') as fp:
     json.dump(finalDevices, fp)
     
 #Now we indexed all devices per OS to be able load in and use in other "command" scripts. 
+print('Done')
+
