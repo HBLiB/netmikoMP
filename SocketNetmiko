@@ -36,8 +36,6 @@ bastionConnect=paramiko.SSHClient()
 bastionConnect.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 bastionConnect.connect(bastionServer, username=user, password=passWord, port=22,timeout=10)
 bastionTransport = bastionConnect.get_transport()
-target=paramiko.SSHClient()
-target.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 srcIP = (bastionServer, 22)
 
 
@@ -62,7 +60,7 @@ def sendCommand(dHost,dDict):
         print(exception_type)
     except OSError as error :
         print(error)
-target.close()
+bastionConnect.close()
 
 threads = []
 
