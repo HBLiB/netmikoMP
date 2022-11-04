@@ -60,7 +60,6 @@ def sendCommand(dHost,dDict):
         print(exception_type)
     except OSError as error :
         print(error)
-bastionConnect.close()
 
 threads = []
 
